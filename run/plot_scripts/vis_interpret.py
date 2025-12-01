@@ -2,6 +2,7 @@ from pymol import cmd
 import numpy as np
 #import pip
 #pip.main(['install','matplotlib'])
+import matplotlib
 import matplotlib.cm as cm
 import sys
 #from arrow import *
@@ -19,8 +20,8 @@ elif pdb.endswith("cif"):
 else:
     print("Neither .pdb or .cif file extension, please check")
 
-#cmap = cm.get_cmap('RdYlBu')
-cmap = cm.get_cmap('hot')
+#cmap = matplotlib.colormaps.get_cmap('RdYlBu')
+cmap = matplotlib.colormaps.get_cmap('hot')
 
 npy_path = fpath + "/interpret_output/" + npz
 v_prot_all = np.load(npy_path + "_v_prot.npy")

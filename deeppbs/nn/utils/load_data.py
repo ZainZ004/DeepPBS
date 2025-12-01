@@ -186,10 +186,10 @@ def _processData(data_files, nc, labels_key,
             e_prot = torch.tensor(E_prot, dtype=torch.long),
             prot_vecs = torch.tensor(prot_vecs, dtype=torch.float32),
             dna_vecs = torch.tensor(dna_vecs, dtype=torch.float32),
-            dna_mask0 = torch.tensor(dna_mask[0], dtype=torch.bool),
-            dna_mask1 = torch.tensor(dna_mask[1], dtype=torch.bool),
-            pwm_mask0 = torch.tensor(pwm_mask[0], dtype=torch.bool),
-            pwm_mask1 = torch.tensor(pwm_mask[1], dtype=torch.bool)
+            dna_mask0 = torch.tensor(np.asarray(dna_mask[0]), dtype=torch.bool),
+            dna_mask1 = torch.tensor(np.asarray(dna_mask[1]), dtype=torch.bool),
+            pwm_mask0 = torch.tensor(np.asarray(pwm_mask[0]), dtype=torch.bool),
+            pwm_mask1 = torch.tensor(np.asarray(pwm_mask[1]), dtype=torch.bool)
             )
         data_list.append(data)
         

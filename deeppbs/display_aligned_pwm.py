@@ -1,3 +1,4 @@
+import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib import colors, cm
 import numpy as np
@@ -14,9 +15,9 @@ def plotPWM(Z, ax, use_mask=False, mask=None, fontsize=10, cmaps=None, xaxis=Fal
         return white + x*(target - white)
         #return([1, 1, 1-x, 1])
 
-    cmaps = [cm.get_cmap('Greens'),cm.get_cmap('Blues'),yellow_map,cm.get_cmap('Reds')]
+    cmaps = [matplotlib.colormaps.get_cmap('Greens'),matplotlib.colormaps.get_cmap('Blues'),yellow_map,matplotlib.colormaps.get_cmap('Reds')]
     if cmaps is None:
-        cmaps = [cm.get_cmap('Greens'),cm.get_cmap('Blues'),cm.get_cmap('Greys'),cm.get_cmap('Reds')]
+        cmaps = [matplotlib.colormaps.get_cmap('Greens'),matplotlib.colormaps.get_cmap('Blues'),matplotlib.colormaps.get_cmap('Greys'),matplotlib.colormaps.get_cmap('Reds')]
     
 
     for i in range(Z.shape[0]):

@@ -1,0 +1,47 @@
+name: deeppbs
+channels:
+    - https://mirrors.ustc.edu.cn/anaconda/cloud/conda-forge
+dependencies:
+    - _libgcc_mutex=0.1=conda_forge
+    - _openmp_mutex=4.5=2_gnu
+    - bzip2=1.0.8=hda65f42_8
+    - ca-certificates=2025.11.12=hbd8a1cb_0
+    - ld_impl_linux-64=2.45=default_hbd61a6d_104
+    - libexpat=2.7.3=hecca717_0
+    - libffi=3.5.2=h9ec8514_0
+    - libgcc=15.2.0=he0feb66_14
+    - libgcc-ng=15.2.0=h69a702a_14
+    - libgomp=15.2.0=he0feb66_14
+    - liblzma=5.8.1=hb9d3cd8_2
+    - libnsl=2.0.1=hb9d3cd8_1
+    - libsqlite=3.51.1=h0c1763c_0
+    - libuuid=2.41.2=he9a06e4_0
+    - libxcrypt=4.4.36=hd590300_1
+    - libzlib=1.3.1=hb9d3cd8_2
+    - ncurses=6.5=h2d0b736_3
+    - openssl=3.6.0=h26f9b46_0
+    - pip=25.3=pyh8b19718_0
+    - python=3.11.14=hd63d673_2_cpython
+    - readline=8.2=h8c095d6_2
+    - setuptools=80.9.0=pyhff2d567_0
+    - tk=8.6.13=noxft_ha0e22de_103
+    - tzdata=2025b=h78e105d_0
+    - wheel=0.45.1=pyhd8ed1ab_1
+    - zstd=1.5.7=h3691f8a_5
+    - pip:
+          - biopython==1.86
+          - freesasa==2.2.1
+          - logomaker==0.8.7
+          - matplotlib==3.10.7
+          - pandas==2.3.3
+          - pdb2pqr==3.7.1
+          - pyg-lib==0.5.0+pt28cu129
+          - scikit-learn==1.7.2
+          - seaborn==0.13.2
+          - torch==2.8.0+cu129
+          - torch-geometric==2.7.0
+          - torch_cluster==1.6.3+pt28cu129
+          - torch_scatter==2.1.2+pt28cu129
+          - torch_sparse==0.6.18+pt28cu129
+          - torch_spline_conv==1.2.2+pt28cu129
+          - torchvision==0.23.0+cu129
