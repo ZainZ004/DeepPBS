@@ -24,12 +24,20 @@
 (requires a Linux machine with Docker installed. To use a GPU, please install the NVIDIA container toolkit as well!)
 
  <div>
-  <a href="https://hub.docker.com/repository/docker/aricohen/deeppbs/general">
+  <a href="https://github.com/ZainZ004/DeepPBS/pkgs/container/deeppbs">
          <img height="50" src="https://upload.wikimedia.org/wikipedia/commons/7/70/Docker_logo.png" />
   </a>
  </div>
 <br/>
 
+### GitHub Container Registry (Recommended)
+`docker pull ghcr.io/zainz004/deeppbs:latest`
+
+then, run the below command, replacing test.cif with your valid .pdb or .cif file:
+
+`docker run --gpus all -it -v $(pwd)/test.cif:/app/input/test.cif   -v $(pwd)/results:/output   ghcr.io/zainz004/deeppbs /app/input/test.cif`
+
+### Docker Hub (Legacy)
 `docker pull aricohen/deeppbs:latest`
 
 then, run the below command, replacing test.cif with your valid .pdb or .cif file:
@@ -42,34 +50,60 @@ This will create a folder named `results`, and place the important DeepPBS resul
 
 ## Installation
 (should take 5-10 minutes with proper system setup)
+
+### Prerequisites
+- Linux system with CUDA support (recommended: CUDA 12.9+)
+- Docker (optional, for containerized usage)
+- Mamba or Conda package manager
+- Git
 ### 1. Git clone the repository
-```
-git clone https://github.com/timkartar/DeepPBS
+```bash
+git clone https://github.com/ZainZ004/DeepPBS
+# or for the original repository:
+# git clone https://github.com/timkartar/DeepPBS
 ```
 ### 2. Install pythonic dependencies
 
-We recommend installation via `conda` packagement tool.
-If you do not have `conda` please refer conda installation instructions [Here](https://docs.anaconda.com/free/anaconda/install/index.html)
+We recommend installation via `mamba` or `conda` package management tool.
+If you do not have `mamba`/`conda` please refer to installation instructions [Here](https://mamba.readthedocs.io/en/latest/installation.html)
 
+#### Option A: Using Mamba (Recommended)
+```bash
+# Create environment from provided YAML file
+mamba env create -f deeppbs.yaml
+mamba activate deeppbs
 ```
-// gcc and cuda configs: gcc/12.3.0 cuda/12.2.1 (works with 12.2 and 12.1, just FYI)
 
-conda create -n deeppbs_install python=3.10
+#### Option B: Manual Installation with Conda
+```bash
+# gcc and cuda configs: gcc/12.3.0 cuda/12.2.1 (works with 12.2 and 12.1, just FYI)
+
+conda create -n deeppbs_install python=3.11
 
 conda init bash
 
 conda activate deeppbs_install
 
-// look here for other versions: https://pytorch.org/get-started/previous-versions/
-conda install pytorch==2.3.0 torchvision==0.18.0 torchaudio==2.3.0 pytorch-cuda=12.1 -c pytorch -c nvidia
+# Install PyTorch with CUDA support
+conda install pytorch==2.8.0 torchvision==0.23.0 torchaudio==2.8.0 pytorch-cuda=12.9 -c pytorch -c nvidia
 
 pip install torch_geometric
 
-// look here for other versions: https://pytorch-geometric.readthedocs.io/en/latest/notes/installation.html
-pip install torch_scatter torch_sparse torch_cluster -f https://data.pyg.org/whl/torch-2.3.0+cu121.html
+# Install PyTorch Geometric extensions
+pip install torch_scatter torch_sparse torch_cluster torch_spline_conv -f https://data.pyg.org/whl/torch-2.8.0+cu129.html
 
-pip install -U --no-cache-dir     biopython==1.83     logomaker     matplotlib==3.5.2     networkx     pandas==1.4.4     pdb2pqr     scipy==1.14.1     seaborn==0.13.2     freesasa==2.2.1 
-
+# Install other dependencies
+pip install -U --no-cache-dir \
+    biopython==1.86 \
+    logomaker==0.8.7 \
+    matplotlib==3.10.7 \
+    networkx \
+    pandas==2.3.3 \
+    pdb2pqr==3.7.1 \
+    scipy==1.16.3 \
+    seaborn==0.13.2 \
+    freesasa==2.2.1 \
+    scikit-learn==1.7.2
 ```
 
 ### 3. Install DeepPBS
@@ -84,17 +118,62 @@ The preprocessing scripts depend on 3DNA and Curves, we have provided the packag
 However, please refer to `x3dna-v2.3-linux-64bit/x3dna-v2.3/license.txt` for fair usage of this version of 3DNA software.
 
 Note: The installation is tested on linux systems with cuda11.3 and cuda11.6, you may have to adjust Pyorch version number based on your system.
-#### UPDATE (Feb 29, 2024): The latest version on github is tested on CUDA 12.2, PyTorch 2.3 and PyG 2.5. The `.yml` file has been updated accordingly.
+#### UPDATE (Dec 2024): The latest version on GitHub includes:
+- **CI/CD Pipeline**: Automated Docker image building and publishing to GitHub Container Registry
+- **Updated Dependencies**: CUDA 12.9, PyTorch 2.8, PyTorch Geometric 2.7, Python 3.11
+- **Environment Management**: New `deeppbs.yaml` file for easy mamba/conda environment creation
+- **GitHub Container Registry**: Primary Docker images now hosted at `ghcr.io/zainz004/deeppbs`
 
 The project was developed on PyG2.0.1, although future versions of PyG are backwards compatible as of now, but we cannot guarantee stability on all versions.
 For more information refer installation pages for [PyTorch](https://pytorch.org/get-started/locally/) and [PyG](https://pytorch-geometric.readthedocs.io/en/latest/install/installation.html)
 
+## Recent Updates & CI/CD
+
+### Automated Builds
+The project now includes GitHub Actions workflows for automated Docker image building:
+- **Trigger**: Automatically builds on pushes to main branch and version tags
+- **Registry**: Images are published to GitHub Container Registry (`ghcr.io/zainz004/deeppbs`)
+- **Multi-platform**: Supports CUDA 12.9 and latest PyTorch/PyG versions
+- **Caching**: Optimized build caching for faster CI/CD pipeline execution
+
+### Development Workflow
+```bash
+# For developers contributing to DeepPBS
+git clone https://github.com/ZainZ004/DeepPBS
+cd DeepPBS
+
+# Create development environment
+mamba env create -f deeppbs.yaml
+mamba activate deeppbs
+
+# Install in development mode
+pip install -e .
+```
+
+### Environment Files
+- **`deeppbs.yaml`**: Complete mamba/conda environment with all dependencies
+- **`Dockerfile`**: Container definition for reproducible deployments
+- **`run/config.json`**: Training configuration template
+
 ## Usage pipeline for pre-trained DeepPBS
 
+### Quick Start with Docker (Recommended)
+```bash
+# Pull the latest image
+docker pull ghcr.io/zainz004/deeppbs:latest
+
+# Run prediction on your structure file
+docker run --gpus all -it \
+  -v $(pwd)/your_structure.pdb:/app/input/structure.pdb \
+  -v $(pwd)/results:/output \
+  ghcr.io/zainz004/deeppbs /app/input/structure.pdb
+```
+
+### Manual Pipeline
 Example pipeline for processing and predicting is as below:
 
 1. `cd run/process/`
-2. Put your PDB files containing biological aseemblies of interest into `pdb` directory
+2. Put your PDB files containing biological assemblies of interest into `pdb` directory
 3. run `ls pdb > input.txt`
 4. `./process_and_predict.sh` (you can parallelize the steps in this script through multiple job submissions)
 
@@ -132,8 +211,26 @@ Figshare link: https://doi.org/10.6084/m9.figshare.25678053
 
 ## Run training
 
-Download and place the data avilability number 2 somewhere on your system and configure the path in
+Download and place the data availability number 2 somewhere on your system and configure the path in
 `/run/config.json` (`"data_dir"`). Also configure the `"output_path"` as you wish.
 
-run `./submit_cross.sh` . This will submit 5 cross-validation models to train simultaneaously.
+run `./submit_cross.sh` . This will submit 5 cross-validation models to train simultaneously.
 Modify this script according to your need.
+
+## Troubleshooting
+
+### Common Issues
+
+1. **CUDA Version Mismatch**: Ensure your system CUDA version matches the PyTorch CUDA version (12.9 recommended)
+2. **Memory Issues**: For large structures, consider reducing batch size or using CPU-only mode
+3. **Docker GPU Access**: Ensure NVIDIA Container Toolkit is installed for GPU support in Docker
+4. **Permission Errors**: Make sure you have proper permissions for the output directories
+
+### Performance Tips
+- Use GPU-enabled Docker images for faster processing
+- Parallelize processing for multiple structures using job arrays
+- Consider using the `-m` flag to skip interpretability calculations for faster prediction-only runs
+
+### Getting Help
+- Check the [GitHub Issues](https://github.com/ZainZ004/DeepPBS/issues) for known problems
+- For the original repository: [timkartar/DeepPBS/issues](https://github.com/timkartar/DeepPBS/issues)

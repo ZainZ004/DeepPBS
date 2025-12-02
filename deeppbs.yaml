@@ -31,10 +31,12 @@ dependencies:
     - pip:
           - biopython==1.86
           - freesasa==2.2.1
+          - gradio==5.8.0
           - logomaker==0.8.7
           - matplotlib==3.10.7
           - pandas==2.3.3
           - pdb2pqr==3.7.1
+          - pillow>=10.0.0
           - pyg-lib==0.5.0+pt28cu129
           - scikit-learn==1.7.2
           - seaborn==0.13.2
