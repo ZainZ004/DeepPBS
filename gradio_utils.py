@@ -19,8 +19,21 @@ from PIL import Image
 # Add DeepPBS modules to path
 sys.path.append(os.path.join(os.path.dirname(__file__), 'run'))
 
+def get_adaptive_tick_spacing(length: int) -> int:
+    """Determine optimal tick spacing based on sequence length"""
+    if length <= 25:
+        return 1
+    elif length <= 50:
+        return 2
+    elif length <= 100:
+        return 5
+    elif length <= 200:
+        return 10
+    else:
+        return max(1, length // 20)  # For very long sequences, show ~20 ticks
+
 def create_sequence_logo(pwm_data: np.ndarray, title: str = "Sequence Logo",
-                        figsize: Tuple[int, int] = (10, 3)) -> plt.Figure:
+                        figsize: Tuple[int, int] = None) -> plt.Figure:
     """Create a sequence logo from PWM data"""
 
     # Ensure PWM is in the right shape (4 x length)
@@ -30,6 +43,15 @@ def create_sequence_logo(pwm_data: np.ndarray, title: str = "Sequence Logo",
     length = pwm_data.shape[1]
     nucleotides = ['A', 'C', 'G', 'T']
     colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728']  # Blue, Orange, Green, Red
+
+    # Calculate dynamic figure size if not provided
+    if figsize is None:
+        base_width = 10
+        if length <= 25:
+            width = base_width
+        else:
+            width = min(base_width + (length - 25) * 0.3, 30)  # Cap at 30 inches max
+        figsize = (width, 3)
 
     fig, ax = plt.subplots(figsize=figsize)
 
@@ -71,14 +93,15 @@ def create_sequence_logo(pwm_data: np.ndarray, title: str = "Sequence Logo",
     ax.set_title(title)
     ax.grid(True, alpha=0.3)
 
-    # Set x-ticks
-    ax.set_xticks(range(0, length, max(1, length // 20)))
+    # Set x-ticks with adaptive spacing
+    tick_spacing = get_adaptive_tick_spacing(length)
+    ax.set_xticks(range(0, length, tick_spacing))
 
     plt.tight_layout()
     return fig
 
 def plot_pwm_comparison(predicted_pwm: np.ndarray, reference_seq: Optional[str] = None,
-                       title: str = "PWM Prediction") -> plt.Figure:
+                       title: str = "PWM Prediction", figsize: Tuple[int, int] = None) -> plt.Figure:
     """Create a comprehensive PWM visualization with optional reference sequence"""
 
     # Ensure PWM is in the right shape
@@ -89,8 +112,17 @@ def plot_pwm_comparison(predicted_pwm: np.ndarray, reference_seq: Optional[str] 
     nucleotides = ['A', 'C', 'G', 'T']
     colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728']
 
+    # Calculate dynamic figure size if not provided
+    if figsize is None:
+        base_width = 12
+        if length <= 25:
+            width = base_width
+        else:
+            width = min(base_width + (length - 25) * 0.3, 30)  # Cap at 30 inches max
+        figsize = (width, 8) if reference_seq and len(reference_seq) == length else (width, 6)
+
     if reference_seq and len(reference_seq) == length:
-        fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(12, 8),
+        fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=figsize,
                                             gridspec_kw={'height_ratios': [1, 2, 2]})
 
         # Plot reference sequence
@@ -98,7 +130,9 @@ def plot_pwm_comparison(predicted_pwm: np.ndarray, reference_seq: Optional[str] 
                   interpolation='nearest')
         ax1.set_title('Reference Sequence')
         ax1.set_yticks([])
-        ax1.set_xticks(range(length))
+        # Set adaptive x-ticks for reference sequence
+        tick_spacing = get_adaptive_tick_spacing(length)
+        ax1.set_xticks(range(0, length, tick_spacing))
         ax1.set_xticklabels([])
 
         # Plot predicted PWM as heatmap
@@ -107,7 +141,7 @@ def plot_pwm_comparison(predicted_pwm: np.ndarray, reference_seq: Optional[str] 
         ax2.set_title('Predicted PWM (Heatmap)')
         ax2.set_yticks(range(4))
         ax2.set_yticklabels(nucleotides)
-        ax2.set_xticks(range(0, length, max(1, length // 20)))
+        ax2.set_xticks(range(0, length, tick_spacing))
         plt.colorbar(im, ax=ax2)
 
         # Plot predicted PWM as bar chart
@@ -125,8 +159,11 @@ def plot_pwm_comparison(predicted_pwm: np.ndarray, reference_seq: Optional[str] 
         ax3.grid(True, alpha=0.3)
 
     else:
-        fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 6),
+        fig, (ax1, ax2) = plt.subplots(2, 1, figsize=figsize,
                                       gridspec_kw={'height_ratios': [1, 1]})
+
+        # Calculate tick spacing for this branch too
+        tick_spacing = get_adaptive_tick_spacing(length)
 
         # Plot predicted PWM as heatmap
         im = ax1.imshow(predicted_pwm, aspect='auto', cmap='Blues',
@@ -134,7 +171,7 @@ def plot_pwm_comparison(predicted_pwm: np.ndarray, reference_seq: Optional[str] 
         ax1.set_title('Predicted PWM (Heatmap)')
         ax1.set_yticks(range(4))
         ax1.set_yticklabels(nucleotides)
-        ax1.set_xticks(range(0, length, max(1, length // 20)))
+        ax1.set_xticks(range(0, length, tick_spacing))
         plt.colorbar(im, ax=ax1)
 
         # Plot predicted PWM as bar chart

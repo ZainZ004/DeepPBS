@@ -132,12 +132,46 @@ if not os.path.exists(outpath+"/npzs"):
 #    return l[0] + "." + l[1]
 
 #jdb  = jaspardb(release="JASPAR2022")
+def calculate_figure_size(sequence_length, base_width=5.5, base_height=3.5):
+    """Calculate appropriate figure size based on sequence length"""
+    if sequence_length <= 25:
+        return (base_width, base_height)
+    else:
+        # Scale width proportionally for variable sequence lengths
+        scaled_width = base_width + (sequence_length - 25) * 0.2
+        return (scaled_width, base_height)
+
+def get_adaptive_ticks_and_labels(sequence_length, seq_list):
+    """Determine optimal tick placement and labels based on sequence length"""
+    if sequence_length <= 25:
+        # Show all positions for short sequences
+        ticks = range(sequence_length)
+        labels = seq_list
+    elif sequence_length <= 50:
+        # Show every 2nd position for medium sequences
+        ticks = list(range(0, sequence_length, 2)) + [sequence_length - 1]
+        labels = [seq_list[i] for i in ticks]
+    elif sequence_length <= 100:
+        # Show every 5th position for longer sequences
+        ticks = list(range(0, sequence_length, 5)) + [sequence_length - 1]
+        labels = [seq_list[i] for i in ticks]
+    else:
+        # Show every 10th position for very long sequences
+        ticks = list(range(0, sequence_length, 10)) + [sequence_length - 1]
+        labels = [seq_list[i] for i in ticks]
+
+    return ticks, labels
+
 def plot(output, seq, idx=''):
     #fig, (ax3, ax1, ax2) = plt.subplots(3,1)
     gs_kw = dict(width_ratios=[1, 1.4])#, height_ratios=[1, 2])
+
+    # Calculate dynamic figure size based on sequence length
+    figsize = calculate_figure_size(len(seq))
+
     fig, axd = plt.subplot_mosaic([['upper left', 'right'],
                                ['lower left', 'right']],
-                              figsize=(5.5, 3.5)) #layout="constrained")
+                              figsize=figsize) #layout="constrained")
     ax2 = axd["right"]
     ax3 = axd["upper left"]
     ax1 = axd["lower left"]
@@ -154,7 +188,12 @@ def plot(output, seq, idx=''):
     ax2.set_title("Prediction")
     ax1.set_title("Prediction")
     ax3.set_title("Sequence")
-    ax2.set_xticks(range(len(seq)), list(seq))
+
+    # Use adaptive tick placement instead of showing all positions
+    ticks, labels = get_adaptive_ticks_and_labels(len(seq), list(seq))
+    ax2.set_xticks(ticks)
+    ax2.set_xticklabels(labels)
+
     #ax2.set_xlim(0,25)
     plt.tight_layout()
     plt.savefig(ospj(outpath, "{}_{}.svg".format(datafiles[i],idx)))

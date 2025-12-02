@@ -5,7 +5,7 @@ import numpy as np
 from Bio import motifs
 import sys
 
-def plotPWM(Z, ax, use_mask=False, mask=None, fontsize=10, cmaps=None, xaxis=False):
+def plotPWM(Z, ax, use_mask=False, mask=None, fontsize=10, cmaps=None, xaxis=False, tick_spacing=None):
     #shape of Z : (4,N)
     C = []
 
@@ -18,7 +18,7 @@ def plotPWM(Z, ax, use_mask=False, mask=None, fontsize=10, cmaps=None, xaxis=Fal
     cmaps = [matplotlib.colormaps.get_cmap('Greens'),matplotlib.colormaps.get_cmap('Blues'),yellow_map,matplotlib.colormaps.get_cmap('Reds')]
     if cmaps is None:
         cmaps = [matplotlib.colormaps.get_cmap('Greens'),matplotlib.colormaps.get_cmap('Blues'),matplotlib.colormaps.get_cmap('Greys'),matplotlib.colormaps.get_cmap('Reds')]
-    
+
 
     for i in range(Z.shape[0]):
         to_append = []
@@ -33,6 +33,30 @@ def plotPWM(Z, ax, use_mask=False, mask=None, fontsize=10, cmaps=None, xaxis=Fal
     im = ax.imshow(C)
     if not xaxis:
         ax.set_xticks([])
+    else:
+        # If xaxis is True and sequence is long, use adaptive tick spacing
+        if tick_spacing is None and xaxis:
+            sequence_length = Z.shape[1]
+            if sequence_length <= 25:
+                tick_spacing = 1
+            elif sequence_length <= 50:
+                tick_spacing = 2
+            elif sequence_length <= 100:
+                tick_spacing = 5
+            else:
+                tick_spacing = max(1, sequence_length // 20)
+
+            if tick_spacing > 1:
+                ticks = list(range(0, sequence_length, tick_spacing)) + [sequence_length - 1]
+                ax.set_xticks(ticks)
+            else:
+                ax.set_xticks(range(sequence_length))
+        elif tick_spacing is not None:
+            ticks = list(range(0, sequence_length, tick_spacing))
+            if ticks[-1] != sequence_length - 1:
+                ticks.append(sequence_length - 1)
+            ax.set_xticks(ticks)
+
     ax.set_yticks([0,1,2,3])
     ax.set_yticklabels(['A','C','G','T'], fontsize=fontsize)
     ax.tick_params(axis=u'both', which=u'both',length=0)
